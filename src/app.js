@@ -1,6 +1,7 @@
 const express = require("express");
 const axios = require("axios");
 var bodyParser = require("body-parser");
+const { EmbedBuilder } = require("discord.js");
 
 const {
   stravaClientId,
@@ -8,6 +9,7 @@ const {
   stravaVerifyToken,
   appUrl,
 } = require("../config.json");
+const client = require("./discordClient");
 
 // TODO: Change this
 let tempRefreshToken = "";
@@ -43,6 +45,7 @@ app.get("/exchange_token", async (req, res) => {
   tempRefreshToken = tokenResponse.data.refresh_token;
   console.log(tempRefreshToken);
   subscribeToStravaHook();
+  reAuthorize(); // temp, use this to get access token
 
   res.send("Authorized");
 });
@@ -65,7 +68,6 @@ app.get("/respond_strava", (req, res) => {
 
 app.post("/respond_strava", async (req, res) => {
   const activityId = req.body["object_id"];
-  console.log(req.body);
 
   try {
     const authToken = await reAuthorize();
@@ -76,6 +78,13 @@ app.post("/respond_strava", async (req, res) => {
         )
         .then((response) => {
           console.log(response.data);
+          const generalChannel = client.channels.cache.find(
+            (channel) => channel.name === "general"
+          );
+          if (generalChannel) {
+            const message = generateActivityMessage(response.data);
+            generalChannel.send({ embeds: [message] });
+          }
         });
     }
   } catch (err) {
@@ -124,6 +133,43 @@ async function reAuthorize() {
   tempAccessToken = response.data.access_token;
   console.log(`Access token: `, tempAccessToken);
   return response.data.access_token;
+}
+
+function generateActivityMessage(data) {
+  const activityMessage = {
+    name: data.name.toString(),
+    type: data.type.toString(),
+    distance: data.distance.toString(),
+    elapsed_time: data.elapsed_time.toString(),
+    average_speed: data.average_speed.toString(),
+  };
+
+  const embeddedMessage = new EmbedBuilder()
+    .setColor(0x0099ff)
+    .setTitle(activityMessage.name)
+    .setAuthor({ name: "Hakket Sommer" })
+    .addFields({
+      name: "Type",
+      value: activityMessage.type || " ",
+      inline: true,
+    })
+    .addFields({
+      name: "Distance",
+      value: activityMessage.distance || " ",
+      inline: true,
+    })
+    .addFields({
+      name: "Elapsed Time",
+      value: activityMessage.elapsed_time || " ",
+      inline: true,
+    })
+    .addFields({
+      name: "Average Speed",
+      value: activityMessage.average_speed || " ",
+      inline: true,
+    });
+
+  return embeddedMessage;
 }
 
 module.exports = app;
