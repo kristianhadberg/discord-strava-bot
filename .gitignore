@@ -4,6 +4,7 @@
 # Custom
 config.json
 strava-dev-acc.json
+ngrok
 
 ### Node ###
 # Logs
