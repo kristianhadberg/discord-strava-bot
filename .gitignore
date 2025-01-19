@@ -3,6 +3,7 @@
 
 # Custom
 config.json
+strava-dev-acc.json
 
 ### Node ###
 # Logs

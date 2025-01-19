@@ -1,5 +1,7 @@
 const express = require("express");
+import { Request, Response } from "express";
 const axios = require("axios");
+import { AxiosResponse, AxiosError } from "axios";
 var bodyParser = require("body-parser");
 const { EmbedBuilder } = require("discord.js");
 
@@ -20,11 +22,12 @@ app.use(bodyParser.json());
 
 // ENDPOINTS
 
-app.get("/", (req, res) => {
+app.get("/", (req: Request, res: Response) => {
   res.send({ message: "tmp" });
 });
 
-app.get("/exchange_token", async (req, res) => {
+app.get("/exchange_token", async (req: Request, res: Response) => {
+
   const tempCode = req.query.code;
   const tokenUrl = "https://www.strava.com/oauth/token?";
   const tokenResponse = await axios.post(
@@ -50,23 +53,23 @@ app.get("/exchange_token", async (req, res) => {
   res.send("Authorized");
 });
 
-app.get("/respond_strava", (req, res) => {
+app.get("/respond_strava", (req: Request, res: Response) => {
   const hubChallenge = req.query["hub.challenge"];
   axios
     .get(
       `${appUrl}?hub.verify_token=${stravaVerifyToken}&hub.challenge=${hubChallenge}&hub.mode=subscribe`
     )
-    .then((response) => {
+    .then((response: AxiosResponse) => {
       console.log(response.data);
       res.status(200).json({ "hub.challenge": hubChallenge });
     })
-    .catch((error) => {
+    .catch((error: AxiosError) => {
       console.error("Error making GET request:", error);
       res.sendStatus(500); // Send internal server error status
     });
 });
 
-app.post("/respond_strava", async (req, res) => {
+app.post("/respond_strava", async (req: Request, res: Response) => {
   const activityId = req.body["object_id"];
 
   try {
@@ -76,10 +79,10 @@ app.post("/respond_strava", async (req, res) => {
         .get(
           `https://www.strava.com/api/v3/activities/${activityId}?access_token=${authToken}`
         )
-        .then((response) => {
+        .then((response: AxiosResponse) => {
           console.log(response.data);
           const generalChannel = client.channels.cache.find(
-            (channel) => channel.name === "general"
+            (channel: { name: string; }) => channel.name === "general"
           );
           if (generalChannel) {
             const message = generateActivityMessage(response.data);
@@ -134,8 +137,8 @@ async function reAuthorize() {
   console.log(`Access token: `, tempAccessToken);
   return response.data.access_token;
 }
-
-function generateActivityMessage(data) {
+// TODO create type for this
+function generateActivityMessage(data: any) {
   const activityMessage = {
     name: data.name.toString(),
     type: data.type.toString(),
