@@ -57,6 +57,22 @@ async function subscribeToStravaHook() {
     return response.data.access_token;
   }
 
+  function formatElapsedTime(seconds: number): string {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hrs.toString().padStart(2, "0")}:${mins
+      .toString()
+      .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  }
+
+  function calculatePacePerKm(distanceMeters: number, elapsedSeconds: number): string {
+    const distanceKm = distanceMeters / 1000; // Convert meters to kilometers
+    const paceSeconds = distanceKm > 0 ? elapsedSeconds / distanceKm : 0; // Avoid division by zero
+    const mins = Math.floor(paceSeconds / 60);
+    const secs = Math.round(paceSeconds % 60);
+    return `${mins}:${secs.toString().padStart(2, "0")} min/km`; // Format as mm:ss
+  }
  function generateActivityMessage(data: IStravaActivity) {
     const activityMessage = {
       name: data.name,
@@ -65,7 +81,11 @@ async function subscribeToStravaHook() {
       elapsed_time: data.elapsed_time.toString(),
       average_speed: data.average_speed.toString(),
     };
-  
+
+    const distanceKm = (data.distance / 1000).toFixed(2); // Convert meters to kilometers, round to 2 decimals
+    const elapsedTimeFormatted = formatElapsedTime(data.elapsed_time); // Convert seconds to hh:mm:ss
+    const pacePerKm = calculatePacePerKm(data.distance, data.elapsed_time); // Calculate pace per km  
+
     const embeddedMessage = new EmbedBuilder()
       .setColor(0x0099ff)
       .setTitle(activityMessage.name)
@@ -77,17 +97,17 @@ async function subscribeToStravaHook() {
       })
       .addFields({
         name: "Distance",
-        value: activityMessage.distance || " ",
+        value: `${distanceKm} km` || " ",
         inline: true,
       })
       .addFields({
-        name: "Elapsed Time",
-        value: activityMessage.elapsed_time || " ",
+        name: "Time",
+        value: elapsedTimeFormatted || " ",
         inline: true,
       })
       .addFields({
-        name: "Average Speed",
-        value: activityMessage.average_speed || " ",
+        name: "Pace",
+        value: `${pacePerKm} km/h` || " ",
         inline: true,
       });
   
