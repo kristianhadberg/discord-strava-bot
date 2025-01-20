@@ -2,11 +2,12 @@
   "name": "discord-strava-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "src/index.js",
+  "type": "module",
+  "main": "src/index.ts",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "ts-node src/index.ts",
+    "start": "node dist/index.ts",
+    "dev": "npx tsx src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Kristian",

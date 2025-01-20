@@ -1,15 +1,8 @@
 import { CommandInteraction } from "discord.js";
+import { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
+import { config } from "../../../config.ts";
 
-const {
-  SlashCommandBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
-  Buttonstyle,
-  ButtonStyle,
-} = require("discord.js");
-const { stravaClientId, appUrl } = require("../../../config.json");
-
-module.exports = {
+export default {
   data: new SlashCommandBuilder()
     .setName("authstrava")
     .setDescription(
@@ -17,7 +10,7 @@ module.exports = {
     ),
   async execute(interaction: CommandInteraction) {
     const auth_link = "https://www.strava.com/oauth/token";
-    const stravaAuthLink = `https://www.strava.com/oauth/authorize?client_id=${stravaClientId}&response_type=code&redirect_uri=${appUrl}/exchange_token&approval_prompt=force&scope=activity:read_all,activity:write`;
+    const stravaAuthLink = `https://www.strava.com/oauth/authorize?client_id=${config.STRAVA_CLIENT_ID}&response_type=code&redirect_uri=${config.APP_URL}/exchange_token&approval_prompt=force&scope=activity:read_all,activity:write`;
 
     const authButton = new ButtonBuilder()
       .setLabel("Connect")

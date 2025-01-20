@@ -1,31 +1,25 @@
-import { IExchangeResponse } from "../types/ExchangeResponse";
-import { IStravaActivity } from "../types/StravaActivity";
-const User = require("../types/User")
+import { IExchangeResponse } from "../types/ExchangeResponse.ts";
+import { IStravaActivity } from "../types/StravaActivity.ts";
+import User from "../types/User.ts";
+import { config } from "../../config.ts";
 
-const axios = require("axios");
-const { EmbedBuilder } = require("discord.js");
+import axios from "axios";
+import { EmbedBuilder } from "discord.js";
 
 // TODO: Change this
 let tempRefreshToken = "";
 let tempAccessToken = "";
 
-const {
-    stravaClientId,
-    stravaClientSecret,
-    stravaVerifyToken,
-    appUrl,
-  } = require("../../config.json");
-
-async function subscribeToStravaHook() {
+export async function subscribeToStravaHook() {
     const hookSubscriptionUrl =
       "https://www.strava.com/api/v3/push_subscriptions?";
     const response = await axios.post(
       hookSubscriptionUrl,
       {
-        client_id: stravaClientId,
-        client_secret: stravaClientSecret,
-        callback_url: `${appUrl}/respond_strava`, // TODO
-        verify_token: stravaVerifyToken,
+        client_id: config.STRAVA_CLIENT_ID,
+        client_secret: config.STRAVA_CLIENT_SECRET,
+        callback_url: `${config.APP_URL}/respond_strava`, // TODO
+        verify_token: config.STRAVA_VERIFY_TOKEN,
       },
       {
         headers: {
@@ -36,13 +30,13 @@ async function subscribeToStravaHook() {
     );
   }
   
-async function reAuthorize() {
+export async function reAuthorize() {
     const auth_link = "https://www.strava.com/oauth/token";
     const response = await axios.post(
       auth_link,
       {
-        client_id: stravaClientId,
-        client_secret: stravaClientSecret,
+        client_id: config.STRAVA_CLIENT_ID,
+        client_secret: config.STRAVA_CLIENT_SECRET,
         refresh_token: tempRefreshToken,
         grant_type: "refresh_token",
       },
@@ -59,7 +53,7 @@ async function reAuthorize() {
     return response.data.access_token;
   }
 
-  async function createOrUpdateUser(exchangeResponse: IExchangeResponse) {
+export async function createOrUpdateUser(exchangeResponse: IExchangeResponse) {
     const existingUser = await User.findOne({ stravaId: exchangeResponse.athlete.id});
 
     if (existingUser) {
@@ -67,7 +61,6 @@ async function reAuthorize() {
         existingUser.accessToken = exchangeResponse.access_token;
         existingUser.refreshToken = exchangeResponse.refresh_token;
         existingUser.accessTokenExpiresAt = exchangeResponse.expires_at;
-        existingUser.lastUpdated = new Date();
         await existingUser.save();
       } else {
         const newUser = new User({
@@ -97,10 +90,10 @@ async function reAuthorize() {
     const paceSeconds = distanceKm > 0 ? elapsedSeconds / distanceKm : 0; // Avoid division by zero
     const mins = Math.floor(paceSeconds / 60);
     const secs = Math.round(paceSeconds % 60);
-    return `${mins}:${secs.toString().padStart(2, "0")} min/km`; // Format as mm:ss
+    return `${mins}:${secs.toString().padStart(2, "0")}`; // Format as mm:ss
   }
 
- function generateActivityMessage(data: IStravaActivity) {
+export function generateActivityMessage(data: IStravaActivity) {
     const activityMessage = {
       name: data.name,
       type: data.type,
@@ -134,26 +127,21 @@ async function reAuthorize() {
       })
       .addFields({
         name: "Pace",
-        value: `${pacePerKm} km/h` || " ",
+        value: `${pacePerKm}/km` || " ",
         inline: true,
       });
   
     return embeddedMessage;
   }
 
-  module.exports = {
-    subscribeToStravaHook,
-    reAuthorize,
-    generateActivityMessage,
-    createOrUpdateUser,
-    tempAccessToken,
-    tempRefreshToken,
-    setTempAccessToken: (value: string) => {
-        tempAccessToken = value;
-    },
-    getTempAccessToken: () => tempAccessToken,
-    setTempRefreshToken: (value: string) => {
-        tempRefreshToken = value;
-    },
-    getTempRefreshToken: () => tempRefreshToken
-  }
+/* 
+  Remove this once access tokens are setup properly per user
+*/
+export let setTempAccessToken = (value: string) => {
+tempAccessToken = value;
+};
+export let getTempAccessToken = () => tempAccessToken;
+export let setTempRefreshToken = (value: string) => {
+tempRefreshToken = value;
+};
+export let getTempRefreshToken = () => tempRefreshToken;

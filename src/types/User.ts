@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // Define the interface for the User document
 export interface IUser extends Document {
@@ -41,6 +41,4 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true }); // Automatically create createdAt and updatedAt fields
 
 // Create and export the User model
-const User = mongoose.model('User', userSchema);
-
-module.exports = User;
+export default mongoose.model('User', userSchema);

@@ -1,10 +1,9 @@
-const discordClient = require("./discordClient");
-const expressApp = require("./app");
-
-const { token } = require("../config.json");
+import {config} from "../config.ts"
+import discordClient from "./discordClient.ts";
+import expressApp from "./app.ts";
 
 // Start Discord client
-discordClient.login(token);
+discordClient.login(config.TOKEN);
 
 // Start Express API
 const PORT = 8080;

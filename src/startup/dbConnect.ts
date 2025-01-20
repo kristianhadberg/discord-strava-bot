@@ -1,12 +1,13 @@
-const mongoose = require('mongoose');
-require('dotenv').config();
+import mongoose from 'mongoose';
+import { config } from '../../config.ts';
 
-module.exports = () => {
-    if (!process.env.MONGODB_URI) {
+export default () => {
+
+    if (!config.MONGODB_URI) {
         throw new Error("MONGODB_URI is not defined");
     }
     mongoose
-        .connect(process.env.MONGODB_URI)
+        .connect(config.MONGODB_URI)
         .then(() => console.log("Connected to MongoDB"))
         .catch((error: any) => console.error(error));
 };

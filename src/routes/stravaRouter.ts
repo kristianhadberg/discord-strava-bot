@@ -1,18 +1,11 @@
 
 import { Request, Response, Router } from "express";
-const axios = require("axios");
+import axios from "axios";
 import { AxiosResponse, AxiosError } from "axios";
-const { generateActivityMessage, createOrUpdateUser, subscribeToStravaHook, reAuthorize, tempAccessToken, setTempAccessToken, getTempAccessToken, tempRefreshToken, setTempRefreshToken, getTempRefreshToken} = require("../services/stravaService");
-import { IExchangeResponse } from "../types/ExchangeResponse";
-
-const {
-    stravaClientId,
-    stravaClientSecret,
-    stravaVerifyToken,
-    appUrl,
-  } = require("../../config.json");
-  const client = require("../discordClient");
-
+import { generateActivityMessage, createOrUpdateUser, subscribeToStravaHook, reAuthorize, setTempAccessToken, getTempAccessToken, setTempRefreshToken, getTempRefreshToken } from "../services/stravaService.ts";
+import { IExchangeResponse } from "../types/ExchangeResponse.js";
+import client from "../discordClient.ts";
+import { config } from "../../config.ts";
 
 const stravaRouter = Router();
 
@@ -23,8 +16,8 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
     const tokenResponse = await axios.post(
       tokenUrl,
       {
-        client_id: stravaClientId,
-        client_secret: stravaClientSecret,
+        client_id: config.STRAVA_CLIENT_ID,
+        client_secret: config.STRAVA_CLIENT_SECRET,
         code: tempCode,
         grant_type: "authorization_code",
       },
@@ -63,7 +56,7 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
     const hubChallenge = req.query["hub.challenge"];
     axios
       .get(
-        `${appUrl}?hub.verify_token=${stravaVerifyToken}&hub.challenge=${hubChallenge}&hub.mode=subscribe`
+        `${config.APP_URL}?hub.verify_token=${config.STRAVA_VERIFY_TOKEN}&hub.challenge=${hubChallenge}&hub.mode=subscribe`
       )
       .then((response: AxiosResponse) => {
         console.log(response.data);
@@ -103,4 +96,4 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
 
 
 
-  module.exports = stravaRouter;
+export default stravaRouter;

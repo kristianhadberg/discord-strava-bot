@@ -1,8 +1,8 @@
-const express = require("express");
+import express from "express";
 import { Request, Response } from "express";
-const  dbConnect = require("./startup/dbConnect")
-const stravaRouter = require("../src/routes/stravaRouter")
-var bodyParser = require("body-parser");
+import dbConnect from "./startup/dbConnect.ts";
+import stravaRouter from "../src/routes/stravaRouter.ts";
+import bodyParser from "body-parser";
 
 dbConnect()
 
@@ -16,5 +16,4 @@ app.get("/", (req: Request, res: Response) => {
   res.send({ message: "tmp" });
 });
 
-
-module.exports = app;
+export default app;
