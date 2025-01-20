@@ -1,7 +1,7 @@
 import { IExchangeResponse } from "../types/ExchangeResponse.ts";
 import { IStravaActivity } from "../types/StravaActivity.ts";
 import User from "../types/User.ts";
-import { config } from "../../config.ts";
+import { config } from "../config.ts";
 
 import axios from "axios";
 import { EmbedBuilder } from "discord.js";

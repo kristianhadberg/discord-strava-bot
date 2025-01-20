@@ -1,4 +1,4 @@
-import {config} from "../config.ts"
+import {config} from "./config.ts"
 import discordClient from "./discordClient.ts";
 import expressApp from "./app.ts";
 

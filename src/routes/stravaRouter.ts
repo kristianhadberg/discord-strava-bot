@@ -5,7 +5,7 @@ import { AxiosResponse, AxiosError } from "axios";
 import { generateActivityMessage, createOrUpdateUser, subscribeToStravaHook, reAuthorize, processActivity, getUser } from "../services/stravaService.ts";
 import { IExchangeResponse } from "../types/ExchangeResponse.js";
 import client from "../discordClient.ts";
-import { config } from "../../config.ts";
+import { config } from "../config.ts";
 import ProcessedActivity from "../types/ProcessedActivity.ts";
 import { NewsChannel, TextChannel } from "discord.js";
 

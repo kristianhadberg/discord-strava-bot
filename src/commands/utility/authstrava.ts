@@ -1,6 +1,6 @@
 import { CommandInteraction } from "discord.js";
 import { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
-import { config } from "../../../config.ts";
+import { config } from "../../config.ts";
 
 export default {
   data: new SlashCommandBuilder()
@@ -18,7 +18,7 @@ export default {
       .setStyle(ButtonStyle.Link);
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(authButton);
-    
+
     await interaction.reply({
       content: "Please click to connect to Strava.",
       components: [row],
