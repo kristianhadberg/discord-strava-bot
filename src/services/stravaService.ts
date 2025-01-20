@@ -30,14 +30,24 @@ export async function subscribeToStravaHook() {
     );
   }
   
-export async function reAuthorize() {
+export async function reAuthorize(stravaId: String) {
     const auth_link = "https://www.strava.com/oauth/token";
+
+    const user = await getUser(stravaId);
+
+    
+    if (Date.now() / 1000 < user.accessTokenExpiresAt) {
+        // Token is still valid
+        return user.accessToken;
+    }
+
+    // Token has expired, refresh access token
     const response = await axios.post(
       auth_link,
       {
         client_id: config.STRAVA_CLIENT_ID,
         client_secret: config.STRAVA_CLIENT_SECRET,
-        refresh_token: tempRefreshToken,
+        refresh_token: user.refreshToken,
         grant_type: "refresh_token",
       },
       {
@@ -47,10 +57,13 @@ export async function reAuthorize() {
         },
       }
     );
-  
-    tempAccessToken = response.data.access_token;
-    console.log(`Access token: `, tempAccessToken);
-    return response.data.access_token;
+
+    const accessToken = response.data.access_token;
+    const refreshToken = response.data.refresh_token;
+    const expiresAt = response.data.expires_at;
+    await updateUserTokens(user.stravaId, accessToken, refreshToken, expiresAt);
+
+    return accessToken;
   }
 
 export async function createOrUpdateUser(exchangeResponse: IExchangeResponse) {
@@ -74,6 +87,40 @@ export async function createOrUpdateUser(exchangeResponse: IExchangeResponse) {
           });
           await newUser.save();
       }
+  }
+
+  async function updateUserTokens(stravaUserId: String, accessToken: String, refreshToken: String, expiresAt: number) {
+    try {
+        // Find and update the user by stravaUserId
+        const updatedUser = await User.findOneAndUpdate(
+          {stravaId: stravaUserId},
+          {
+            accessToken,
+            refreshToken,
+            expiresAt
+          }
+        );
+    
+        if (!updatedUser) {
+          throw new Error(`User with id ${stravaUserId} not found`);
+        }
+    
+        console.log(`Successfully updated user tokens: ${updatedUser}`);
+        return updatedUser;
+      } catch (error) {
+        console.error('Error updating user tokens:', error);
+        throw error;
+      }
+  }
+
+  async function getUser(stravaUserId: String) {
+    const user = await User.findOne({ stravaId: stravaUserId});
+
+    if (!user) {
+        throw new Error(`User with ID: ${stravaUserId} not found.`)
+    }
+
+    return user;
   }
 
   function formatElapsedTime(seconds: number): string {

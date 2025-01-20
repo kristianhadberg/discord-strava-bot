@@ -9,6 +9,10 @@ import { config } from "../../config.ts";
 
 const stravaRouter = Router();
 
+/**
+ * The endpoint called when attempting to authorize user to the application
+ * 
+ **/ 
 stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
 
     const tempCode = req.query.code;
@@ -70,9 +74,10 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
   
   stravaRouter.post("/respond_strava", async (req: Request, res: Response) => {
     const activityId = req.body["object_id"];
+    const stravaId = req.body["owner_id"]
   
     try {
-      const authToken = await reAuthorize();
+      const authToken = await reAuthorize(stravaId);
       if (req.body["aspect_type"] == "create") {
         axios
           .get(
