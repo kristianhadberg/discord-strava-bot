@@ -2,16 +2,17 @@
 import { Request, Response, Router } from "express";
 import axios from "axios";
 import { AxiosResponse, AxiosError } from "axios";
-import { generateActivityMessage, createOrUpdateUser, subscribeToStravaHook, reAuthorize, setTempAccessToken, getTempAccessToken, setTempRefreshToken, getTempRefreshToken } from "../services/stravaService.ts";
+import { generateActivityMessage, createOrUpdateUser, subscribeToStravaHook, reAuthorize, setTempAccessToken, getTempAccessToken, setTempRefreshToken, getTempRefreshToken, processActivity } from "../services/stravaService.ts";
 import { IExchangeResponse } from "../types/ExchangeResponse.js";
 import client from "../discordClient.ts";
 import { config } from "../../config.ts";
+import ProcessedActivity from "../types/ProcessedActivity.ts";
 
 const stravaRouter = Router();
+subscribeToStravaHook()
 
 /**
  * The endpoint called when attempting to authorize user to the application
- * 
  **/ 
 stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
 
@@ -47,12 +48,6 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
     }
 
     createOrUpdateUser(exchangeResponse);
-
-    setTempRefreshToken(tokenResponse.data.refresh_token);
-    //tempRefreshToken = tokenResponse.data.refresh_token;
-    //subscribeToStravaHook(); // Comment this out for testing when already subscribed (so you don't have to delete sub & resubscribe)
-    reAuthorize(); // temp, use this to get access token
-  
     res.send("Authorized");
   });
   
@@ -77,6 +72,13 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
     const stravaId = req.body["owner_id"]
   
     try {
+        // Check if activity with given ID has already been processed.
+        const existingActivity = await ProcessedActivity.findOne( {activityId: activityId})
+        if (existingActivity) {
+            console.log(`Activity ${activityId} has already been processed. Skipping.`);
+            return res.status(200).send('Activity already processed.');
+        }
+
       const authToken = await reAuthorize(stravaId);
       if (req.body["aspect_type"] == "create") {
         axios
@@ -93,6 +95,8 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
               generalChannel.send({ embeds: [message] });
             }
           });
+
+          await processActivity(activityId);
       }
     } catch (err) {
       console.error(err);

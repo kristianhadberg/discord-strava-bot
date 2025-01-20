@@ -5,6 +5,7 @@ import { config } from "../../config.ts";
 
 import axios from "axios";
 import { EmbedBuilder } from "discord.js";
+import ProcessedActivity from "../types/ProcessedActivity.ts";
 
 // TODO: Change this
 let tempRefreshToken = "";
@@ -13,21 +14,27 @@ let tempAccessToken = "";
 export async function subscribeToStravaHook() {
     const hookSubscriptionUrl =
       "https://www.strava.com/api/v3/push_subscriptions?";
-    const response = await axios.post(
-      hookSubscriptionUrl,
-      {
-        client_id: config.STRAVA_CLIENT_ID,
-        client_secret: config.STRAVA_CLIENT_SECRET,
-        callback_url: `${config.APP_URL}/respond_strava`, // TODO
-        verify_token: config.STRAVA_VERIFY_TOKEN,
-      },
-      {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
+
+      try {
+        const response = await axios.post(
+            hookSubscriptionUrl,
+            {
+              client_id: config.STRAVA_CLIENT_ID,
+              client_secret: config.STRAVA_CLIENT_SECRET,
+              callback_url: `${config.APP_URL}/respond_strava`, // TODO
+              verify_token: config.STRAVA_VERIFY_TOKEN,
+            },
+            {
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+            }
+          );
+      } catch (error) {
+        console.error('Subscription already exists');
       }
-    );
+
   }
   
 export async function reAuthorize(stravaId: String) {
@@ -111,6 +118,16 @@ export async function createOrUpdateUser(exchangeResponse: IExchangeResponse) {
         console.error('Error updating user tokens:', error);
         throw error;
       }
+  }
+
+  export async function processActivity(activityId: String) {
+        const newActivity = new ProcessedActivity({
+            activityId: activityId
+        })
+
+        console.log('activity saved')
+        
+        await newActivity.save();
   }
 
   async function getUser(stravaUserId: String) {
