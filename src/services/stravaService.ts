@@ -7,10 +7,9 @@ import axios from "axios";
 import { EmbedBuilder } from "discord.js";
 import ProcessedActivity from "../types/ProcessedActivity.ts";
 
-// TODO: Change this
-let tempRefreshToken = "";
-let tempAccessToken = "";
-
+/**
+ * Subscribe to stravas webhook services.
+ **/ 
 export async function subscribeToStravaHook() {
     const hookSubscriptionUrl =
       "https://www.strava.com/api/v3/push_subscriptions?";
@@ -36,13 +35,17 @@ export async function subscribeToStravaHook() {
       }
 
   }
-  
+
+/**
+ * Returns the access token for the user.
+ * Uses refresh token to retrieve a new access token in case it is expired.
+ * Saves the new access/refresh token & expiration time in the db.
+ **/ 
 export async function reAuthorize(stravaId: String) {
     const auth_link = "https://www.strava.com/oauth/token";
 
     const user = await getUser(stravaId);
 
-    
     if (Date.now() / 1000 < user.accessTokenExpiresAt) {
         // Token is still valid
         return user.accessToken;
@@ -96,7 +99,7 @@ export async function createOrUpdateUser(exchangeResponse: IExchangeResponse) {
       }
   }
 
-  async function updateUserTokens(stravaUserId: String, accessToken: String, refreshToken: String, expiresAt: number) {
+async function updateUserTokens(stravaUserId: String, accessToken: String, refreshToken: String, expiresAt: number) {
     try {
         // Find and update the user by stravaUserId
         const updatedUser = await User.findOneAndUpdate(
@@ -120,6 +123,10 @@ export async function createOrUpdateUser(exchangeResponse: IExchangeResponse) {
       }
   }
 
+  /**
+    * Saves the activityId in the database,
+    * to avoid handling the same activity multiple times
+    **/ 
   export async function processActivity(activityId: String) {
         const newActivity = new ProcessedActivity({
             activityId: activityId
@@ -157,6 +164,10 @@ export async function createOrUpdateUser(exchangeResponse: IExchangeResponse) {
     return `${mins}:${secs.toString().padStart(2, "0")}`; // Format as mm:ss
   }
 
+
+/**
+ * Generate a message to be send on Discord
+ **/  
 export function generateActivityMessage(data: IStravaActivity) {
     const activityMessage = {
       name: data.name,
@@ -197,15 +208,3 @@ export function generateActivityMessage(data: IStravaActivity) {
   
     return embeddedMessage;
   }
-
-/* 
-  Remove this once access tokens are setup properly per user
-*/
-export let setTempAccessToken = (value: string) => {
-tempAccessToken = value;
-};
-export let getTempAccessToken = () => tempAccessToken;
-export let setTempRefreshToken = (value: string) => {
-tempRefreshToken = value;
-};
-export let getTempRefreshToken = () => tempRefreshToken;

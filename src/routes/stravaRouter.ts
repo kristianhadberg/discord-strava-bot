@@ -67,6 +67,10 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
       });
   });
   
+  /**
+   * The endpoint strava will respond to when an activity is created
+   * Sends a message in the specified discord channel.
+   **/ 
   stravaRouter.post("/respond_strava", async (req: Request, res: Response) => {
     const activityId = req.body["object_id"];
     const stravaId = req.body["owner_id"]
