@@ -2,7 +2,7 @@
 import { Request, Response, Router } from "express";
 import axios from "axios";
 import { AxiosResponse, AxiosError } from "axios";
-import { generateActivityMessage, createOrUpdateUser, subscribeToStravaHook, reAuthorize, setTempAccessToken, getTempAccessToken, setTempRefreshToken, getTempRefreshToken, processActivity } from "../services/stravaService.ts";
+import { generateActivityMessage, createOrUpdateUser, subscribeToStravaHook, reAuthorize, processActivity } from "../services/stravaService.ts";
 import { IExchangeResponse } from "../types/ExchangeResponse.js";
 import client from "../discordClient.ts";
 import { config } from "../../config.ts";
