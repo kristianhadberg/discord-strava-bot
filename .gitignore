@@ -5,6 +5,7 @@
 config.json
 strava-dev-acc.json
 ngrok
+.env
 
 ### Node ###
 # Logs

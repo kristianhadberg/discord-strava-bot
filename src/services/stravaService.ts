@@ -1,4 +1,6 @@
-import { IStravaActivity } from "../types/stravaActivity";
+import { IExchangeResponse } from "../types/ExchangeResponse";
+import { IStravaActivity } from "../types/StravaActivity";
+const User = require("../types/User")
 
 const axios = require("axios");
 const { EmbedBuilder } = require("discord.js");
@@ -34,7 +36,7 @@ async function subscribeToStravaHook() {
     );
   }
   
-  async function reAuthorize() {
+async function reAuthorize() {
     const auth_link = "https://www.strava.com/oauth/token";
     const response = await axios.post(
       auth_link,
@@ -57,6 +59,30 @@ async function subscribeToStravaHook() {
     return response.data.access_token;
   }
 
+  async function createOrUpdateUser(exchangeResponse: IExchangeResponse) {
+    const existingUser = await User.findOne({ stravaId: exchangeResponse.athlete.id});
+
+    if (existingUser) {
+        // Update existing user
+        existingUser.accessToken = exchangeResponse.access_token;
+        existingUser.refreshToken = exchangeResponse.refresh_token;
+        existingUser.accessTokenExpiresAt = exchangeResponse.expires_at;
+        existingUser.lastUpdated = new Date();
+        await existingUser.save();
+      } else {
+        const newUser = new User({
+            stravaId: exchangeResponse.athlete.id, 
+            username: exchangeResponse.athlete.username,
+            firstname: exchangeResponse.athlete.firstname,
+            lastname: exchangeResponse.athlete.lastname,
+            accessToken: exchangeResponse.access_token,
+            refreshToken: exchangeResponse.refresh_token,
+            accessTokenExpiresAt: exchangeResponse.expires_at,
+          });
+          await newUser.save();
+      }
+  }
+
   function formatElapsedTime(seconds: number): string {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
@@ -73,6 +99,7 @@ async function subscribeToStravaHook() {
     const secs = Math.round(paceSeconds % 60);
     return `${mins}:${secs.toString().padStart(2, "0")} min/km`; // Format as mm:ss
   }
+
  function generateActivityMessage(data: IStravaActivity) {
     const activityMessage = {
       name: data.name,
@@ -118,6 +145,7 @@ async function subscribeToStravaHook() {
     subscribeToStravaHook,
     reAuthorize,
     generateActivityMessage,
+    createOrUpdateUser,
     tempAccessToken,
     tempRefreshToken,
     setTempAccessToken: (value: string) => {

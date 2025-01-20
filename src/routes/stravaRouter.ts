@@ -2,7 +2,8 @@
 import { Request, Response, Router } from "express";
 const axios = require("axios");
 import { AxiosResponse, AxiosError } from "axios";
-const { generateActivityMessage, subscribeToStravaHook, reAuthorize, tempAccessToken, setTempAccessToken, getTempAccessToken, tempRefreshToken, setTempRefreshToken, getTempRefreshToken} = require("../services/stravaService");
+const { generateActivityMessage, createOrUpdateUser, subscribeToStravaHook, reAuthorize, tempAccessToken, setTempAccessToken, getTempAccessToken, tempRefreshToken, setTempRefreshToken, getTempRefreshToken} = require("../services/stravaService");
+import { IExchangeResponse } from "../types/ExchangeResponse";
 
 const {
     stravaClientId,
@@ -34,6 +35,22 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
         },
       }
     );
+
+    const exchangeResponse: IExchangeResponse = {
+            expires_at: tokenResponse.data.expires_at,
+            expires_in: tokenResponse.data.expires_in,
+            refresh_token: tokenResponse.data.refresh_token,
+            access_token: tokenResponse.data.access_token,
+            athlete: {
+                id: tokenResponse.data.athlete.id,
+                username: tokenResponse.data.athlete.username,
+                firstname: tokenResponse.data.athlete.firstname,
+                lastname: tokenResponse.data.athlete.lastname,
+            },
+    }
+
+    createOrUpdateUser(exchangeResponse);
+
     setTempRefreshToken(tokenResponse.data.refresh_token);
     //tempRefreshToken = tokenResponse.data.refresh_token;
     //subscribeToStravaHook(); // Comment this out for testing when already subscribed (so you don't have to delete sub & resubscribe)
