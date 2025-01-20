@@ -2,11 +2,13 @@
 import { Request, Response, Router } from "express";
 import axios from "axios";
 import { AxiosResponse, AxiosError } from "axios";
-import { generateActivityMessage, createOrUpdateUser, subscribeToStravaHook, reAuthorize, processActivity } from "../services/stravaService.ts";
+import { generateActivityMessage, createOrUpdateUser, subscribeToStravaHook, reAuthorize, processActivity, getUser } from "../services/stravaService.ts";
 import { IExchangeResponse } from "../types/ExchangeResponse.js";
 import client from "../discordClient.ts";
 import { config } from "../../config.ts";
 import ProcessedActivity from "../types/ProcessedActivity.ts";
+import { NewsChannel, TextChannel } from "discord.js";
+
 
 const stravaRouter = Router();
 subscribeToStravaHook()
@@ -80,24 +82,29 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
         const existingActivity = await ProcessedActivity.findOne( {activityId: activityId})
         if (existingActivity) {
             console.log(`Activity ${activityId} has already been processed. Skipping.`);
-            return res.status(200).send('Activity already processed.');
+            res.status(200).send('Activity already processed.');
         }
 
       const authToken = await reAuthorize(stravaId);
       if (req.body["aspect_type"] == "create") {
+        const user = await getUser(stravaId);
+        const plainMessage = `${user.firstname} ${user.lastname} just finished an activity!`
+
         axios
           .get(
             `https://www.strava.com/api/v3/activities/${activityId}?access_token=${authToken}`
           )
           .then((response: AxiosResponse) => {
-            console.log(response.data);
             const generalChannel = client.channels.cache.find(
-              (channel: { name: string; }) => channel.name === "general"
-            );
-            if (generalChannel) {
-              const message = generateActivityMessage(response.data);
-              generalChannel.send({ embeds: [message] });
-            }
+                (channel) => 
+                  (channel.type === 0 || channel.type === 5) && // 0 = TextChannel, 5 = NewsChannel
+                  (channel as TextChannel | NewsChannel).name === "general"
+              ) as TextChannel | NewsChannel | undefined;
+              
+              if (generalChannel) {
+                const embeddedMessage = generateActivityMessage(response.data)
+                generalChannel.send({ content: plainMessage, embeds: [embeddedMessage] });
+              }
           });
 
           await processActivity(activityId);
@@ -105,6 +112,7 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
     } catch (err) {
       console.error(err);
     }
+    
   });
 
 

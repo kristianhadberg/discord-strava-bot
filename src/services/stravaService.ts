@@ -137,7 +137,7 @@ async function updateUserTokens(stravaUserId: String, accessToken: String, refre
         await newActivity.save();
   }
 
-  async function getUser(stravaUserId: String) {
+  export async function getUser(stravaUserId: String) {
     const user = await User.findOne({ stravaId: stravaUserId});
 
     if (!user) {
