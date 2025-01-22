@@ -2,16 +2,17 @@
 import { Request, Response, Router } from "express";
 import axios from "axios";
 import { AxiosResponse, AxiosError } from "axios";
-import { generateActivityMessage, createOrUpdateUser, subscribeToStravaHook, reAuthorize, processActivity, getUser } from "../services/stravaService.ts";
-import { IExchangeResponse } from "../types/ExchangeResponse.js";
-import client from "../discordClient.ts";
-import { config } from "../config.ts";
-import ProcessedActivity from "../types/ProcessedActivity.ts";
-import { NewsChannel, TextChannel } from "discord.js";
+import { generateActivityMessage, createOrUpdateUser, subscribeToStravaHook, reAuthorize, processActivity, getUser } from "../services/stravaService";
+import { IExchangeResponse } from "../types/ExchangeResponse";
+import client from "../discordClient";
+import { config } from "../config";
+import ProcessedActivity from "../types/ProcessedActivity";
+import { ChannelType, NewsChannel, TextChannel } from "discord.js";
 
+export function createStravaRouter() {
+    const stravaRouter = Router();
+    subscribeToStravaHook();
 
-const stravaRouter = Router();
-subscribeToStravaHook()
 
 /**
  * The endpoint called when attempting to authorize user to the application
@@ -83,38 +84,41 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
         if (existingActivity) {
             console.log(`Activity ${activityId} has already been processed. Skipping.`);
             res.status(200).send('Activity already processed.');
+        } else {
+            const authToken = await reAuthorize(stravaId);
+            if (req.body["aspect_type"] == "create") {
+              const user = await getUser(stravaId);
+              const plainMessage = `${user.firstname} ${user.lastname} just finished an activity!`
+              axios
+                .get(
+                  `https://www.strava.com/api/v3/activities/${activityId}?access_token=${authToken}`
+                )
+                .then(async (response: AxiosResponse) => {
+                const generalChannel = client.channels.cache.find(
+                      (channel) => 
+                        (channel.type === 0 || channel.type === 5) && // 0 = TextChannel, 5 = NewsChannel
+                        (channel as TextChannel | NewsChannel).name === "general"
+                    ) as TextChannel | NewsChannel | undefined;
+                    
+                    if (generalChannel) {
+                      const embeddedMessage = generateActivityMessage(response.data)
+                      generalChannel.send({ content: plainMessage, embeds: [embeddedMessage] });
+                    } 
+                });
+      
+                await processActivity(activityId);
+            }
         }
 
-      const authToken = await reAuthorize(stravaId);
-      if (req.body["aspect_type"] == "create") {
-        const user = await getUser(stravaId);
-        const plainMessage = `${user.firstname} ${user.lastname} just finished an activity!`
-
-        axios
-          .get(
-            `https://www.strava.com/api/v3/activities/${activityId}?access_token=${authToken}`
-          )
-          .then((response: AxiosResponse) => {
-            const generalChannel = client.channels.cache.find(
-                (channel) => 
-                  (channel.type === 0 || channel.type === 5) && // 0 = TextChannel, 5 = NewsChannel
-                  (channel as TextChannel | NewsChannel).name === "general"
-              ) as TextChannel | NewsChannel | undefined;
-              
-              if (generalChannel) {
-                const embeddedMessage = generateActivityMessage(response.data)
-                generalChannel.send({ content: plainMessage, embeds: [embeddedMessage] });
-              }
-          });
-
-          await processActivity(activityId);
-      }
+      
     } catch (err) {
       console.error(err);
     }
     
   });
 
+  return stravaRouter;
+}
 
 
-export default stravaRouter;
+//export default stravaRouter;

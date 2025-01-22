@@ -1,50 +1,81 @@
 import fs from "node:fs";
 import path from "node:path";
-import { Client, Collection, Events, GatewayIntentBits } from "discord.js";
-import { Command } from "./types/Command.ts";
+import { ChannelType, Client, Collection, Events, GatewayIntentBits, NewsChannel, TextChannel } from "discord.js";
+import { Command } from "./types/Command";
+import { config } from "./config";
 import { fileURLToPath } from "url"; // Import fileURLToPath
 import { dirname } from "path"; // Import dirname
 
 // Correct the __dirname for ES modules
-const __filename = fileURLToPath(import.meta.url); // Convert filename to file URL
-const __dirname = dirname(__filename); // Get directory name
+//const __filename = fileURLToPath(import.meta.url); // Convert filename to file URL
+//const __filename = __filename;
+//const __dirname = dirname(_filename); // Get directory name
 
 interface ExtendedClient extends Client {
   commands?: Collection<string, Command>;
 }
 
-const client: ExtendedClient = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client: ExtendedClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
 
 client.commands = new Collection();
 const foldersPath = path.join(__dirname, "commands");
 const commandFolders = fs.readdirSync(foldersPath);
 
 // Searching the commands folder and subsequent subfolders for available commands
-for (const folder of commandFolders) {
-    const commandsPath = path.join(foldersPath, folder);
-  
-    console.log(folder);
-    const commandFiles = fs
-      .readdirSync(commandsPath)
-      .filter((file: string) => file.endsWith(".ts"));
-  
-    for (const file of commandFiles) {
-      const filePath = path.join(commandsPath, file);
-  
-      // Dynamically import the command using top-level await
-      const command = (await import(`file://${filePath}`)).default; // Use file:// URL for dynamic import and access the default export
-  
-      // Ensure the command has 'data' and 'execute' properties
-      if (command && "data" in command && "execute" in command) {
-        client.commands.set(command.data.name, command);
-      } else {
-        console.log(`Command missing required properties: ${filePath}`);
-      }
-    }
-  }
+    (async () => {
+    for (const folder of commandFolders) {
+        const commandsPath = path.join(foldersPath, folder);
 
-client.once(Events.ClientReady, (readyClient: any) => {
+        const commandFiles = fs
+        .readdirSync(commandsPath)
+        .filter((file: string) => {
+            if (process.env.NODE_ENV === "production") {
+            // Only process .js files in production
+            return file.endsWith(".js");
+            } else {
+            // Process .ts files in development
+            return file.endsWith(".ts");
+            }
+        });
+    
+        for (const file of commandFiles) {
+        const filePath = path.join(commandsPath, file);
+    
+        try {
+            let command;
+            if (process.env.NODE_ENV === "production") {
+            // Use require for .js files in production
+            command = require(filePath).default;
+            } else {
+            // Use dynamic import for .ts files in development
+            command = (await import(`file://${filePath}`)).default;
+            }
+    
+            // Ensure the command has 'data' and 'execute' properties
+            if (command && "data" in command && "execute" in command) {
+            client.commands?.set(command.data.name, command);
+            console.log(`Loaded command: ${command.data.name}`);
+            } else {
+            console.log(`Command missing required properties: ${filePath}`);
+            }
+        } catch (error) {
+            console.error(`Error loading command from file: ${filePath}`, error);
+        }
+        }
+    }
+    })();
+      
+      
+
+client.once(Events.ClientReady, async (readyClient: any) => {
   console.log("Ready!");
+
+  const channel = await client.channels.fetch("1205488819827118193");
+  if (channel?.type === ChannelType.GuildText) {
+    console.log(channel.name);
+  }
+  
+  console.log(`Bot is authenticated and ready! Logged in as ${client.user?.tag}`);
 });
 
 client.on(Events.InteractionCreate, async (interaction: any) => {

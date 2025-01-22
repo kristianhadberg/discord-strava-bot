@@ -1,14 +1,13 @@
 import express from "express";
 import { Request, Response } from "express";
-import dbConnect from "./startup/dbConnect.ts";
-import stravaRouter from "../src/routes/stravaRouter.ts";
+import dbConnect from "./startup/dbConnect";
 import bodyParser from "body-parser";
 
 dbConnect()
 
 const app = express();
 app.use(bodyParser.json());
-app.use("/", stravaRouter)
+//app.use("/", stravaRouter)
 
 // ENDPOINTS
 

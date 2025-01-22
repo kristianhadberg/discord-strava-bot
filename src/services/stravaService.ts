@@ -1,11 +1,11 @@
-import { IExchangeResponse } from "../types/ExchangeResponse.ts";
-import { IStravaActivity } from "../types/StravaActivity.ts";
-import User from "../types/User.ts";
-import { config } from "../config.ts";
+import { IExchangeResponse } from "../types/ExchangeResponse";
+import { IStravaActivity } from "../types/StravaActivity";
+import User from "../types/User";
+import { config } from "../config";
 
 import axios from "axios";
 import { EmbedBuilder } from "discord.js";
-import ProcessedActivity from "../types/ProcessedActivity.ts";
+import ProcessedActivity from "../types/ProcessedActivity";
 
 /**
  * Subscribe to stravas webhook services.

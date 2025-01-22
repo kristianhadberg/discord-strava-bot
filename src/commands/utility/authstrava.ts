@@ -1,6 +1,6 @@
 import { CommandInteraction } from "discord.js";
 import { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
-import { config } from "../../config.ts";
+import { config } from "../../config";
 
 export default {
   data: new SlashCommandBuilder()
