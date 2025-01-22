@@ -4,7 +4,7 @@ import User from "../types/User";
 import { config } from "../config";
 
 import axios from "axios";
-import { EmbedBuilder } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Component, EmbedBuilder } from "discord.js";
 import ProcessedActivity from "../types/ProcessedActivity";
 
 /**
@@ -170,6 +170,7 @@ async function updateUserTokens(stravaUserId: String, accessToken: String, refre
  **/  
 export function generateActivityMessage(data: IStravaActivity) {
     const activityMessage = {
+      id: data.object_id,
       name: data.name,
       type: data.type,
       distance: data.distance.toString(),
@@ -204,6 +205,16 @@ export function generateActivityMessage(data: IStravaActivity) {
         value: `${pacePerKm}/km` || " ",
         inline: true,
       });
+
+      const viewInStravaButton = new ButtonBuilder()
+        .setLabel("View in Strava")
+        .setURL(`https://www.strava.com/activities/${data.id}`) // Replace `data.id` with the activity ID
+        .setStyle(ButtonStyle.Link);
+
+    const row = new ActionRowBuilder().addComponents(viewInStravaButton);
   
-    return embeddedMessage;
+    return {
+        embeds: [embeddedMessage],
+        components: [row]
+    };
   }

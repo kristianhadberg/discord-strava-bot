@@ -1,5 +1,6 @@
 
 export interface IStravaActivity {
+    object_id: number;
     name: string;
     type: string;
     distance: number;
