@@ -170,7 +170,6 @@ async function updateUserTokens(stravaUserId: String, accessToken: String, refre
  **/  
 export function generateActivityMessage(data: IStravaActivity) {
     const activityMessage = {
-      id: data.object_id,
       name: data.name,
       type: data.type,
       distance: data.distance.toString(),
@@ -206,9 +205,11 @@ export function generateActivityMessage(data: IStravaActivity) {
         inline: true,
       });
 
+      console.log(data.id)
+
       const viewInStravaButton = new ButtonBuilder()
         .setLabel("View in Strava")
-        .setURL(`https://www.strava.com/activities/${data.object_id}`)
+        .setURL(`https://www.strava.com/activities/${data.id}`)
         .setStyle(ButtonStyle.Link);
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(viewInStravaButton);

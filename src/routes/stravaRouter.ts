@@ -92,8 +92,9 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
                 .get(
                   `https://www.strava.com/api/v3/activities/${activityId}?access_token=${authToken}`
                 )
-                .then(async (response: AxiosResponse) => {
+                .then((response: AxiosResponse) => {
                     const channelToSendMessageIn = client.channels.cache.get(config.DISCORD_CHANNEL_ID);
+                    
 
                     if (channelToSendMessageIn && channelToSendMessageIn.type === 0) {
                         const { embeds, components } = generateActivityMessage(response.data)
