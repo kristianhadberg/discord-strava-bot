@@ -94,17 +94,13 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
                   `https://www.strava.com/api/v3/activities/${activityId}?access_token=${authToken}`
                 )
                 .then(async (response: AxiosResponse) => {
-                const generalChannel = client.channels.cache.find(
-                      (channel) => 
-                        (channel.type === 0 || channel.type === 5) && // 0 = TextChannel, 5 = NewsChannel
-                        (channel as TextChannel | NewsChannel).name === "general"
-                    ) as TextChannel | NewsChannel | undefined;
-                    
-                    if (generalChannel) {
-                      const embeddedMessage = generateActivityMessage(response.data)
-                      generalChannel.send({ content: plainMessage, embeds: [embeddedMessage] });
-                    } 
-                });
+                    const channelToSendMessageIn = client.channels.cache.get(config.DISCORD_CHANNEL_ID);
+
+                    if (channelToSendMessageIn && channelToSendMessageIn.type === 0) {
+                        const embeddedMessage = generateActivityMessage(response.data)
+                        channelToSendMessageIn.send({ content: plainMessage, embeds: [embeddedMessage] });
+                    }
+                }); 
       
                 await processActivity(activityId);
             }

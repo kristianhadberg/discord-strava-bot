@@ -11,5 +11,6 @@ export const config = {
     STRAVA_VERIFY_TOKEN: process.env.STRAVA_VERIFY_TOKEN!,
     APP_URL: process.env.APP_URL!,
     MONGODB_URI: process.env.MONGODB_URI!,
-    NODE_ENV: process.env.NODE_ENV!
+    NODE_ENV: process.env.NODE_ENV!,
+    DISCORD_CHANNEL_ID: process.env.DISCORD_CHANNEL_ID!
   };
