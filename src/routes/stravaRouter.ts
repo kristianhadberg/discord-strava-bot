@@ -7,7 +7,6 @@ import { IExchangeResponse } from "../types/ExchangeResponse";
 import client from "../discordClient";
 import { config } from "../config";
 import ProcessedActivity from "../types/ProcessedActivity";
-import { ChannelType, NewsChannel, TextChannel } from "discord.js";
 
 export function createStravaRouter() {
     const stravaRouter = Router();
@@ -115,6 +114,3 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
 
   return stravaRouter;
 }
-
-
-//export default stravaRouter;

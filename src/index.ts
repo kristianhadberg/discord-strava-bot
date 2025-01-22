@@ -9,7 +9,6 @@ import { createStravaRouter } from "./routes/stravaRouter";
 discordClient.login(config.TOKEN);
 
 discordClient.once('ready', () => {
-    console.log('wasup')
     //startServer()
 
     const stravaRouter = createStravaRouter();

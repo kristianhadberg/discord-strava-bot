@@ -2,14 +2,6 @@ import fs from "node:fs";
 import path from "node:path";
 import { ChannelType, Client, Collection, Events, GatewayIntentBits, NewsChannel, TextChannel } from "discord.js";
 import { Command } from "./types/Command";
-import { config } from "./config";
-import { fileURLToPath } from "url"; // Import fileURLToPath
-import { dirname } from "path"; // Import dirname
-
-// Correct the __dirname for ES modules
-//const __filename = fileURLToPath(import.meta.url); // Convert filename to file URL
-//const __filename = __filename;
-//const __dirname = dirname(_filename); // Get directory name
 
 interface ExtendedClient extends Client {
   commands?: Collection<string, Command>;
@@ -69,11 +61,6 @@ const commandFolders = fs.readdirSync(foldersPath);
 
 client.once(Events.ClientReady, async (readyClient: any) => {
   console.log("Ready!");
-
-  const channel = await client.channels.fetch("1205488819827118193");
-  if (channel?.type === ChannelType.GuildText) {
-    console.log(channel.name);
-  }
   
   console.log(`Bot is authenticated and ready! Logged in as ${client.user?.tag}`);
 });
