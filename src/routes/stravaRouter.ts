@@ -96,8 +96,13 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
                     const channelToSendMessageIn = client.channels.cache.get(config.DISCORD_CHANNEL_ID);
 
                     if (channelToSendMessageIn && channelToSendMessageIn.type === 0) {
-                        const embeddedMessage = generateActivityMessage(response.data)
-                        channelToSendMessageIn.send({ content: plainMessage, embeds: [embeddedMessage] });
+                        const { embeds, components } = generateActivityMessage(response.data)
+                        channelToSendMessageIn.send({
+                            content: plainMessage,
+                            embeds: embeds,
+                            components: components,
+                        });
+                        /* channelToSendMessageIn.send({ content: plainMessage, embeds: embeds, components: components }); */
                     }
                 }); 
       
