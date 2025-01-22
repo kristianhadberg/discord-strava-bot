@@ -184,7 +184,6 @@ export function generateActivityMessage(data: IStravaActivity) {
     const embeddedMessage = new EmbedBuilder()
       .setColor(0x0099ff)
       .setTitle(activityMessage.name)
-      .setAuthor({ name: "Hakket Sommer" })
       .addFields({
         name: "Type",
         value: activityMessage.type || " ",
