@@ -87,7 +87,6 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
             const authToken = await reAuthorize(stravaId);
             if (req.body["aspect_type"] == "create") {
               const user = await getUser(stravaId);
-              const plainMessage = `${user.firstname} ${user.lastname} just finished an activity!`
               axios
                 .get(
                   `https://www.strava.com/api/v3/activities/${activityId}?access_token=${authToken}`
@@ -100,6 +99,9 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
                         res.status(200).send('Only activity type run is accepted.')
                     } else {
                         if (channelToSendMessageIn && channelToSendMessageIn.type === 0) {
+                            const stravaDeepLink = `strava://activities/${response.data.id}`
+                            const plainMessage = `${user.firstname} ${user.lastname} just finished an activity! use this link: ${stravaDeepLink}`
+
                             const { embeds, components } = generateActivityMessage(response.data)
                             channelToSendMessageIn.send({
                                 content: plainMessage,
@@ -119,6 +121,27 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
       console.error(err);
     }
     
+  });
+
+  /**
+   * Redirect the user when they click an activity message in Discord.
+   * Automatically redirects based on the users device (opens Strava app if on mobile)
+   **/ 
+  stravaRouter.get("/redirect", (req: Request, res: Response) => {
+    const activityId = req.query.activity;
+
+    if (!activityId) {
+        res.status(400).send("Missing activity ID");
+    } else {
+        const userAgent = req.headers["user-agent"];
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(userAgent || "");
+
+        if (isMobile) {
+            res.redirect(`strava://activities/${activityId}`);
+        } else {
+            res.redirect(`https://www.strava.com/activities/${activityId}`)
+        }
+    }
   });
 
   return stravaRouter;

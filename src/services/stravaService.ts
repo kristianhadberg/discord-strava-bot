@@ -207,7 +207,7 @@ export function generateActivityMessage(data: IStravaActivity) {
 
       const viewInStravaButton = new ButtonBuilder()
         .setLabel("View in Strava")
-        .setURL(`https://www.strava.com/activities/${data.id}`)
+        .setURL(`${config.APP_URL}/redirect?activity=${data.id}`)
         .setStyle(ButtonStyle.Link);
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(viewInStravaButton);
