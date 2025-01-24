@@ -99,8 +99,7 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
                         res.status(200).send('Only activity type run is accepted.')
                     } else {
                         if (channelToSendMessageIn && channelToSendMessageIn.type === 0) {
-                            const stravaDeepLink = `strava://activities/${response.data.id}`
-                            const plainMessage = `${user.firstname} ${user.lastname} just finished an activity! use this link: ${stravaDeepLink}`
+                            const plainMessage = `${user.firstname} ${user.lastname} just finished an activity!`
 
                             const { embeds, components } = generateActivityMessage(response.data)
                             channelToSendMessageIn.send({
