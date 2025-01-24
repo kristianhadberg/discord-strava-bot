@@ -95,15 +95,18 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
                 .then((response: AxiosResponse) => {
                     const channelToSendMessageIn = client.channels.cache.get(config.DISCORD_CHANNEL_ID);
                     
-
-                    if (channelToSendMessageIn && channelToSendMessageIn.type === 0) {
-                        const { embeds, components } = generateActivityMessage(response.data)
-                        channelToSendMessageIn.send({
-                            content: plainMessage,
-                            embeds: embeds,
-                            components: components,
-                        });
-                        /* channelToSendMessageIn.send({ content: plainMessage, embeds: embeds, components: components }); */
+                    if (response.data.type !== 'Run') {
+                        console.log(`Recieved activity with another type than 'Run'`);
+                        res.status(200).send('Only activity type run is accepted.')
+                    } else {
+                        if (channelToSendMessageIn && channelToSendMessageIn.type === 0) {
+                            const { embeds, components } = generateActivityMessage(response.data)
+                            channelToSendMessageIn.send({
+                                content: plainMessage,
+                                embeds: embeds,
+                                components: components,
+                            });
+                        }
                     }
                 }); 
       

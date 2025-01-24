@@ -205,8 +205,6 @@ export function generateActivityMessage(data: IStravaActivity) {
         inline: true,
       });
 
-      console.log(data.id)
-
       const viewInStravaButton = new ButtonBuilder()
         .setLabel("View in Strava")
         .setURL(`https://www.strava.com/activities/${data.id}`)
