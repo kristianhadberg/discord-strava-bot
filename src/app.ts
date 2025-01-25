@@ -7,12 +7,10 @@ dbConnect()
 
 const app = express();
 app.use(bodyParser.json());
-//app.use("/", stravaRouter)
 
 // ENDPOINTS
-
 app.get("/", (req: Request, res: Response) => {
-  res.send({ message: "tmp" });
+  res.send({ message: "discord-strava-bot online" });
 });
 
 export default app;

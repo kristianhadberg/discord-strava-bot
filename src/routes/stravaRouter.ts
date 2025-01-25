@@ -110,16 +110,13 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
                         }
                     }
                 }); 
-      
+
                 await processActivity(activityId);
             }
         }
-
-      
     } catch (err) {
       console.error(err);
     }
-    
   });
 
   /**

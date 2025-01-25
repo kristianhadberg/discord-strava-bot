@@ -43,7 +43,6 @@ export async function subscribeToStravaHook() {
  **/ 
 export async function reAuthorize(stravaId: String) {
     const auth_link = "https://www.strava.com/oauth/token";
-
     const user = await getUser(stravaId);
 
     if (Date.now() / 1000 < user.accessTokenExpiresAt) {
@@ -131,7 +130,6 @@ async function updateUserTokens(stravaUserId: String, accessToken: String, refre
         const newActivity = new ProcessedActivity({
             activityId: activityId
         })
-
         console.log('activity saved')
         
         await newActivity.save();
@@ -151,6 +149,7 @@ async function updateUserTokens(stravaUserId: String, accessToken: String, refre
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
+
     return `${hrs.toString().padStart(2, "0")}:${mins
       .toString()
       .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
@@ -161,6 +160,7 @@ async function updateUserTokens(stravaUserId: String, accessToken: String, refre
     const paceSeconds = distanceKm > 0 ? elapsedSeconds / distanceKm : 0; // Avoid division by zero
     const mins = Math.floor(paceSeconds / 60);
     const secs = Math.round(paceSeconds % 60);
+    
     return `${mins}:${secs.toString().padStart(2, "0")}`; // Format as mm:ss
   }
 

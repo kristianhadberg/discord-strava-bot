@@ -10,7 +10,7 @@ export default {
     ),
   async execute(interaction: CommandInteraction) {
     const auth_link = "https://www.strava.com/oauth/token";
-    const stravaAuthLink = `https://www.strava.com/oauth/authorize?client_id=${config.STRAVA_CLIENT_ID}&response_type=code&redirect_uri=${config.APP_URL}/exchange_token&approval_prompt=force&scope=activity:read_all,activity:write&state=1234`;
+    const stravaAuthLink = `https://www.strava.com/oauth/authorize?client_id=${config.STRAVA_CLIENT_ID}&response_type=code&redirect_uri=${config.APP_URL}/exchange_token&approval_prompt=force&scope=activity:read_all,activity:write`;
 
     const authButton = new ButtonBuilder()
       .setLabel("Connect")
