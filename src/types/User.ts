@@ -38,6 +38,9 @@ const userSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  discordId: {
+    type: String
+  }
 }, { timestamps: true }); // Automatically create createdAt and updatedAt fields
 
 // Create and export the User model

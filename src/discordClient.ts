@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { ChannelType, Client, Collection, Events, GatewayIntentBits, NewsChannel, TextChannel } from "discord.js";
 import { Command } from "./types/Command";
+import { handleButtonInteraction } from "./interactions/handleButtonInteraction";
 
 interface ExtendedClient extends Client {
   commands?: Collection<string, Command>;
@@ -66,6 +67,10 @@ client.once(Events.ClientReady, async (readyClient: any) => {
 });
 
 client.on(Events.InteractionCreate, async (interaction: any) => {
+  if (interaction.isButton()) {
+    await handleButtonInteraction(interaction);
+  }
+
   if (!interaction.isChatInputCommand()) return;
   const command = interaction.client.commands.get(interaction.commandName);
 
@@ -73,6 +78,8 @@ client.on(Events.InteractionCreate, async (interaction: any) => {
     console.error(`No command matching ${interaction.commandName} was found.`);
     return;
   }
+
+
 
   try {
     await command.execute(interaction);

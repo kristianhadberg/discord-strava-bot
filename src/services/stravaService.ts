@@ -75,7 +75,7 @@ export async function reAuthorize(stravaId: String) {
     return accessToken;
   }
 
-export async function createOrUpdateUser(exchangeResponse: IExchangeResponse) {
+export async function createOrUpdateUser(discordId: string, exchangeResponse: IExchangeResponse) {
     const existingUser = await User.findOne({ stravaId: exchangeResponse.athlete.id});
 
     if (existingUser) {
@@ -83,6 +83,7 @@ export async function createOrUpdateUser(exchangeResponse: IExchangeResponse) {
         existingUser.accessToken = exchangeResponse.access_token;
         existingUser.refreshToken = exchangeResponse.refresh_token;
         existingUser.accessTokenExpiresAt = exchangeResponse.expires_at;
+        existingUser.discordId = discordId;
         await existingUser.save();
       } else {
         const newUser = new User({
@@ -93,6 +94,7 @@ export async function createOrUpdateUser(exchangeResponse: IExchangeResponse) {
             accessToken: exchangeResponse.access_token,
             refreshToken: exchangeResponse.refresh_token,
             accessTokenExpiresAt: exchangeResponse.expires_at,
+            discordId: discordId
           });
           await newUser.save();
       }

@@ -17,6 +17,12 @@ export function createStravaRouter() {
  * The endpoint called when attempting to authorize user to the application
  **/ 
 stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
+    const state = req.query.state;
+
+    if (!state) {
+        res.status(400).send("Missing state");
+        return
+    }
 
     const tempCode = req.query.code;
     const tokenUrl = "https://www.strava.com/oauth/token?";
@@ -36,6 +42,8 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
       }
     );
 
+    const discordId = decodeURIComponent(state.toString());
+
     const exchangeResponse: IExchangeResponse = {
             expires_at: tokenResponse.data.expires_at,
             expires_in: tokenResponse.data.expires_in,
@@ -49,7 +57,7 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
             },
     }
 
-    createOrUpdateUser(exchangeResponse);
+    createOrUpdateUser(discordId, exchangeResponse);
     res.send("Authorized");
   });
   
@@ -99,11 +107,16 @@ stravaRouter.get("/exchange_token", async (req: Request, res: Response) => {
                         res.status(200).send('Only activity type run is accepted.')
                     } else {
                         if (channelToSendMessageIn && channelToSendMessageIn.type === 0) {
-                            const plainMessage = `${user.firstname} ${user.lastname} just finished an activity!`
+                            let messageContent = '';
+                            if (user.discordId) {
+                                messageContent = `<@${user.discordId}> just finished an activity!`;
+                            } else {
+                                messageContent = `${user.firstname} ${user.lastname} just finished an activity!`
+                            }
 
                             const { embeds, components } = generateActivityMessage(response.data)
                             channelToSendMessageIn.send({
-                                content: plainMessage,
+                                content: messageContent,
                                 embeds: embeds,
                                 components: components,
                             });
