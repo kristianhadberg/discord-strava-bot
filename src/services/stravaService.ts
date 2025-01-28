@@ -147,7 +147,7 @@ async function updateUserTokens(stravaUserId: String, accessToken: String, refre
     return user;
   }
 
-  function formatElapsedTime(seconds: number): string {
+  function formatMovingTime(seconds: number): string {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
@@ -176,12 +176,13 @@ export function generateActivityMessage(data: IStravaActivity) {
       type: data.type,
       distance: data.distance.toString(),
       elapsed_time: data.elapsed_time.toString(),
+      moving_time: data.moving_time.toString(),
       average_speed: data.average_speed.toString(),
     };
 
     const distanceKm = (data.distance / 1000).toFixed(2); // Convert meters to kilometers, round to 2 decimals
-    const elapsedTimeFormatted = formatElapsedTime(data.elapsed_time); // Convert seconds to hh:mm:ss
-    const pacePerKm = calculatePacePerKm(data.distance, data.elapsed_time); // Calculate pace per km  
+    const movingTimeFormatted = formatMovingTime(data.moving_time); // Convert seconds to hh:mm:ss
+    const pacePerKm = calculatePacePerKm(data.distance, data.moving_time); // Calculate pace per km  
 
     const embeddedMessage = new EmbedBuilder()
       .setColor(0x0099ff)
@@ -198,7 +199,7 @@ export function generateActivityMessage(data: IStravaActivity) {
       })
       .addFields({
         name: "Time",
-        value: elapsedTimeFormatted || " ",
+        value: movingTimeFormatted || " ",
         inline: true,
       })
       .addFields({

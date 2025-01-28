@@ -5,5 +5,6 @@ export interface IStravaActivity {
     type: string;
     distance: number;
     elapsed_time: number;
+    moving_time: number;
     average_speed: number;
 }
