@@ -6,8 +6,8 @@ A Discord bot that integrates with Strava to bring your fitness data and activit
 
 ## Features
 
-- **Strava Authentication**: Connect your Strava account securely.
-- **Activity Sharing**: Automatically fetches your new activites and shares them in your Discord channel.
+-   **Strava Authentication**: Connect your Strava account securely.
+-   **Activity Sharing**: Uses webhooks to effectively fetch new activities and share them in your Discord channel.
 
 ---
 
@@ -16,7 +16,9 @@ A Discord bot that integrates with Strava to bring your fitness data and activit
 ### Note: full installation guide is in progress.
 
 ### 1. Clone the Repository
+
 Clone the project repository to your local machine:
+
 ```bash
 git clone https://github.com/kristianhadberg/discord-strava-bot.git
 cd discord-strava-bot
@@ -36,4 +38,5 @@ Additional commands can be added to the src/commands folder.
 ---
 
 ## License
+
 This project is licensed under the MIT License.
