@@ -1,4 +1,3 @@
-
 export interface IStravaActivity {
     id: number;
     name: string;

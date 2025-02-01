@@ -12,5 +12,5 @@ export const config = {
     APP_URL: process.env.APP_URL!,
     MONGODB_URI: process.env.MONGODB_URI!,
     NODE_ENV: process.env.NODE_ENV!,
-    DISCORD_CHANNEL_ID: process.env.DISCORD_CHANNEL_ID!
-  };
+    DISCORD_CHANNEL_ID: process.env.DISCORD_CHANNEL_ID!,
+};

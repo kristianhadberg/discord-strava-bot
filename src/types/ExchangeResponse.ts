@@ -1,4 +1,3 @@
-
 export interface IExchangeResponse {
     expires_at: number;
     expires_in: number;
@@ -9,5 +8,5 @@ export interface IExchangeResponse {
         username: string;
         firstname: string;
         lastname: string;
-    }
+    };
 }
