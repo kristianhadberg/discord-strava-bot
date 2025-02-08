@@ -1,12 +1,11 @@
 import { Request, Response, Router } from "express";
 import axios from "axios";
 import { AxiosResponse, AxiosError } from "axios";
+import { generateActivityMessage, processActivity } from "../services/activityService";
 import {
-    generateActivityMessage,
     createOrUpdateUser,
     subscribeToStravaHook,
     reAuthorize,
-    processActivity,
     getUser,
 } from "../services/stravaService";
 import { IExchangeResponse } from "../types/ExchangeResponse";
